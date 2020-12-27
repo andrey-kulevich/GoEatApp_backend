@@ -11,5 +11,11 @@ namespace GoEatApp_backend.Controllers
     [ApiController]
     public class DishesController : ControllerBase
     {
+
+        // Get dish by id
+
+        // Get dishes by place id
+
+        // 
     }
 }

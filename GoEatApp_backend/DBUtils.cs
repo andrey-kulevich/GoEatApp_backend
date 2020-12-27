@@ -15,5 +15,12 @@ namespace GoEatapp_backend
                 return reader.GetString(colIndex);
             return string.Empty;
         }
+
+        public static int SafeGetIntId(MySqlDataReader reader, int colIndex)
+        {
+            if (!reader.IsDBNull(colIndex))
+                return reader.GetInt32(colIndex);
+            return -1;
+        }
     }
 }

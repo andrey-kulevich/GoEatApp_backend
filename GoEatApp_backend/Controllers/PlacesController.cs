@@ -13,20 +13,19 @@ namespace GoEatApp_backend.Controllers
     {
         MySqlConnection conn = DBUtils.GetDBConnection();
 
+        // Get place by address id
         [HttpGet("{id}")]
         public async Task<ActionResult> Get(int id)
         {
             Place place = new Place();
             conn.Open();
-            MySqlCommand cmd = new MySqlCommand("call getPlaceByAddressId(" + id + ");", conn);
+            MySqlCommand cmd = new MySqlCommand($"call getPlaceByAddressId({id});", conn);
             using (MySqlDataReader reader = cmd.ExecuteReader())
             {
                 if (reader.HasRows)
                 {
                     reader.Read();
                     PutPlace(reader, ref place);
-
-                    //System.Diagnostics.Debug.WriteLine(place.Name);
                 }
                 else return await Task.FromResult(NotFound());
             }
@@ -35,17 +34,14 @@ namespace GoEatApp_backend.Controllers
             return await Task.FromResult(new JsonResult(place));
         }
 
+        // Get places list by location and preferences
         [HttpGet("{requestArea}/{userLocation}/{cuisine_nationality}/{interior}")]
         public async Task<ActionResult> Get(string requestArea, string userLocation, string cuisine_nationality, string interior)
         {
             List<Place> places = new List<Place>();
             conn.Open();
             MySqlCommand cmd = new MySqlCommand(
-                "call getPlacesListByLocationAndPreferences(" + "\'" + requestArea + "\'," +
-                                                                "\'" +  userLocation + "\'," +
-                                                                "\'" +  cuisine_nationality + "\'," +
-                                                                "\'" +  interior +
-                                                                "\');", conn);
+                $"call getPlacesListByLocationAndPreferences('{requestArea}', '{userLocation}', '{cuisine_nationality}', '{interior}');", conn);
             using (MySqlDataReader reader = cmd.ExecuteReader())
             {
                 if (reader.HasRows)
@@ -56,7 +52,31 @@ namespace GoEatApp_backend.Controllers
                         PutPlace(reader, ref place);
                         places.Add(place);
                     }
-                    
+                }
+                else return await Task.FromResult(NotFound());
+            }
+            conn.Close();
+            conn.Dispose();
+            return await Task.FromResult(new JsonResult(places));
+        }
+
+        // Get favorite places
+        [HttpGet("favorite/{userId}")]
+        public async Task<ActionResult> GetFavotitePlaces(int userId)
+        {
+            List<Place> places = new List<Place>();
+            conn.Open();
+            MySqlCommand cmd = new MySqlCommand($"call getFavoritePlaces({userId});", conn);
+            using (MySqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    Place place = new Place();
+                    while (reader.Read())
+                    {
+                        PutPlace(reader, ref place);
+                        places.Add(place);
+                    }
                 }
                 else return await Task.FromResult(NotFound());
             }
