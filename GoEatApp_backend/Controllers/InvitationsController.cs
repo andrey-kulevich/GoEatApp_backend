@@ -49,9 +49,10 @@ namespace GoEatApp_backend.Controllers
             {
                 if (reader.HasRows)
                 {
-                    Invitation invitation = new Invitation();
+                    Invitation invitation;
                     while (reader.Read())
                     {
+                        invitation = new Invitation();
                         PutInvitation(reader, ref invitation);
                         invitations.Add(invitation);
                     }
@@ -74,9 +75,10 @@ namespace GoEatApp_backend.Controllers
             {
                 if (reader.HasRows)
                 {
-                    Invitation invitation = new Invitation();
+                    Invitation invitation;
                     while (reader.Read())
                     {
+                        invitation = new Invitation();
                         PutInvitation(reader, ref invitation);
                         invitations.Add(invitation);
                     }
@@ -99,9 +101,10 @@ namespace GoEatApp_backend.Controllers
             {
                 if (reader.HasRows)
                 {
-                    Invitation invitation = new Invitation();
+                    Invitation invitation;
                     while (reader.Read())
                     {
+                        invitation = new Invitation();
                         PutInvitation(reader, ref invitation);
                         invitations.Add(invitation);
                     }

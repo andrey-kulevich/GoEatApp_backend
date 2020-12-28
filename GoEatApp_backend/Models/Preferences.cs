@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
+﻿
 namespace GoEatapp_backend.Models
 {
     public class Preferences
@@ -18,5 +14,18 @@ namespace GoEatapp_backend.Models
         public Dish BestSecondMeal { get; set; }
         public Dish BestDessert { get; set; }
         public string Other { get; set; }
+    }
+
+    public class PreferencesIntFieldUpdate
+    {
+        public int PreferencesId { get; set; }
+        public string FieldToUpdate { get; set; }
+        public int IntValue { get; set; }
+    }
+
+    public class PreferencesOtherUpate
+    {
+        public int PreferencesId { get; set; }
+        public string OtherValue { get; set; }
     }
 }
