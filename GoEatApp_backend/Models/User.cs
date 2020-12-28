@@ -15,7 +15,23 @@ namespace GoEatapp_backend.Models
         public Preferences Preferences { get; set; }
         public string Status { get; set; }
         public string Role { get; set; }
+    }
+
+    public class UserCreate
+    {
+        public string Name { get; set; }
+        public int Age { get; set; }
+        public int Gender { get; set; }
+        public string Avatar { get; set; }
+        public string Status { get; set; }
+        public int Role { get; set; }
         public string Login { get; set; }
         public string Password { get; set; }
+    }
+
+    public class UserStatus
+    {
+        public int UserId { get; set; }
+        public string Status { get; set; }
     }
 }

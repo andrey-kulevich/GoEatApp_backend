@@ -17,25 +17,105 @@ namespace GoEatApp_backend.Controllers
     {
         MySqlConnection conn = DBUtils.GetDBConnection();
 
-        //[HttpGet]
-        //public async Task<JsonResult> Get()
-        //{
-        //    List<User> users = new List<User>(); 
+        // Check auth data
+        [HttpGet("{login}/{password}")]
+        public async Task<ActionResult> Get(string login, string password)
+        {
+            conn.Open();
+            User user = new User();
+            int preferencesId = 0;
+            MySqlCommand cmd = new MySqlCommand($"call getUserByLoginAndPassword('{login}', '{password}');", conn);
+            using (MySqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    reader.Read();
+                    user.Id = reader.GetInt32(0);
+                    user.Name = DBUtils.SafeGetString(reader, 1);
+                    user.Age = reader.GetInt32(2);
+                    user.Gender = DBUtils.SafeGetString(reader, 3);
+                    user.Avatar = DBUtils.SafeGetString(reader, 4);
+                    preferencesId = reader.GetInt32(5);
+                    user.Status = DBUtils.SafeGetString(reader, 6);
+                    user.Role = DBUtils.SafeGetString(reader, 7);
+                }
+                else return await Task.FromResult(NotFound());
+            }
+            user.Preferences = PreferencesController.GetPreferencesByUserId(user.Id, conn);
+            conn.Close();
+            conn.Dispose();
+            return await Task.FromResult(new JsonResult(user));
+        }
 
-        //    MySqlCommand cmd = new MySqlCommand("select * from user;", conn);
-        //    using (DbDataReader reader = cmd.ExecuteReader())
-        //    {
-        //        if (reader.HasRows)
-        //        {
-        //            User user = new User();
-        //            while (reader.Read())
-        //            {
-        //                user.Id = reader.GetInt32()
-        //            }
-        //        }
-        //    }
+        // Get user by id
+        [HttpGet("{userId}")]
+        public async Task<ActionResult> Get(int userId)
+        {
+            conn.Open();
+            User user = new User();
+            int preferencesId = 0;
+            MySqlCommand cmd = new MySqlCommand($"call getUserById({userId});", conn);
+            using (MySqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    reader.Read();
+                    user.Id = reader.GetInt32(0);
+                    user.Name = DBUtils.SafeGetString(reader, 1);
+                    user.Age = reader.GetInt32(2);
+                    user.Gender = DBUtils.SafeGetString(reader, 3);
+                    user.Avatar = DBUtils.SafeGetString(reader, 4);
+                    preferencesId = reader.GetInt32(5);
+                    user.Status = DBUtils.SafeGetString(reader, 6);
+                    user.Role = DBUtils.SafeGetString(reader, 7);
+                }
+                else return await Task.FromResult(NotFound());
+            }
+            user.Preferences = PreferencesController.GetPreferencesByUserId(user.Id, conn);
+            conn.Close();
+            conn.Dispose();
+            return await Task.FromResult(new JsonResult(user));
+        }
 
-        //    return await Task.FromResult(new JsonResult(users));   
-        //}
+        // Create user
+        [HttpPost]
+        public ActionResult Post(UserCreate user)
+        {
+            if (user == null) return BadRequest();
+            conn.Open();
+            MySqlCommand cmd = new MySqlCommand("insert into preferences value ();", conn);
+            cmd.ExecuteNonQuery();
+
+            int preferencesId = 0;
+            cmd = new MySqlCommand("select MAX(id) from preferences;", conn);
+            using (MySqlDataReader reader = cmd.ExecuteReader())
+            {
+                reader.Read();
+                preferencesId = reader.GetInt32(0);
+            }
+
+            cmd = new MySqlCommand("INSERT INTO user (name, age, gender, avatar, preferences, status, role, login, password)" +
+                                $"VALUES('{user.Name}', {user.Age}, {user.Gender}, '{user.Avatar}', {preferencesId}, " +
+                                $"'{user.Status}', {user.Role}, '{user.Login}', '{user.Password}');", conn);
+            int affected = cmd.ExecuteNonQuery();
+
+            if (affected == 0) return NotFound();
+            conn.Close();
+            conn.Dispose();
+            return Ok();
+        }
+
+        // Update status
+        [HttpPut]
+        public ActionResult Put(UserStatus userStatus)
+        {
+            conn.Open();
+            MySqlCommand cmd = new MySqlCommand($"update user set status = '{userStatus.Status}' where id = {userStatus.UserId};", conn);
+            int affected = cmd.ExecuteNonQuery();
+            if (affected == 0) return NotFound();
+            conn.Close();
+            conn.Dispose();
+            return Ok();
+        }
     }
 }
