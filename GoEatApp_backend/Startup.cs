@@ -17,6 +17,8 @@ namespace GoEatapp_backend
 {
     public class Startup
     {
+        //readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -27,6 +29,7 @@ namespace GoEatapp_backend
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors();
             services.AddControllers();
         }
 
@@ -36,6 +39,7 @@ namespace GoEatapp_backend
             if (env.IsDevelopment()) { app.UseDeveloperExceptionPage(); }
             app.UseHttpsRedirection();
             app.UseRouting();
+            app.UseCors(builder => builder.AllowAnyOrigin());
             app.UseAuthorization();
             app.UseEndpoints( endpoints => { endpoints.MapControllers(); } );
         }

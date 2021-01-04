@@ -8,6 +8,7 @@ using GoEatapp_backend;
 using MySql.Data.MySqlClient;
 using GoEatapp_backend.Models;
 using System.Data.Common;
+using Microsoft.AspNetCore.Cors;
 
 namespace GoEatApp_backend.Controllers
 {
