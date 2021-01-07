@@ -19,10 +19,9 @@ namespace GoEatapp_backend.Models
         public string Other { get; set; }
     }
 
-    public class PlaceCreate
+    public class EmptyPlaceCreate
     {
         public string Name { get; set; }
-        public string Photo { get; set; }
         public string Country { get; set; }
         public string Region { get; set; }
         public string Town { get; set; }
@@ -30,6 +29,11 @@ namespace GoEatapp_backend.Models
         public string Street { get; set; }
         public string House { get; set; }
         public string Apartment { get; set; }
+    }
+
+    public class PlaceCreate : EmptyPlaceCreate
+    {
+        public string Photo { get; set; }
         public int CuisineNationality { get; set; }
         public int Interior { get; set; }
         public string Tagline { get; set; }

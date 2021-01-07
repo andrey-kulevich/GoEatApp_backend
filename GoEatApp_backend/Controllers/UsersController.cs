@@ -78,6 +78,36 @@ namespace GoEatApp_backend.Controllers
             return await Task.FromResult(new JsonResult(user));
         }
 
+        // Get user by login
+        [HttpGet("login/{login}")]
+        public async Task<ActionResult> GetByLogin(string login)
+        {
+            conn.Open();
+            User user = new User();
+            int preferencesId = 0;
+            MySqlCommand cmd = new MySqlCommand($"call getUserByLogin('{login}');", conn);
+            using (MySqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    reader.Read();
+                    user.Id = reader.GetInt32(0);
+                    user.Name = DBUtils.SafeGetString(reader, 1);
+                    user.Age = reader.GetInt32(2);
+                    user.Gender = DBUtils.SafeGetString(reader, 3);
+                    user.Avatar = DBUtils.SafeGetString(reader, 4);
+                    preferencesId = reader.GetInt32(5);
+                    user.Status = DBUtils.SafeGetString(reader, 6);
+                    user.Role = DBUtils.SafeGetString(reader, 7);
+                }
+                else return await Task.FromResult(NotFound());
+            }
+            user.Preferences = PreferencesController.GetPreferencesByUserId(user.Id, conn);
+            conn.Close();
+            conn.Dispose();
+            return await Task.FromResult(new JsonResult(user));
+        }
+
         // Create user
         [HttpPost]
         public ActionResult Post(UserCreate user)

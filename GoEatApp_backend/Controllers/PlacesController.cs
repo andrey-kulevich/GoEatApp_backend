@@ -123,6 +123,39 @@ namespace GoEatApp_backend.Controllers
             return Ok();
         }
 
+        //Create empty place
+        [HttpPost("empty")]
+        public ActionResult PostEmptyPlace(EmptyPlaceCreate place)
+        {
+            if (place == null) return BadRequest();
+            conn.Open();
+
+            MySqlCommand cmd;
+            cmd = new MySqlCommand($"insert into place (name) values ('{place.Name}');", conn);
+            int affected = cmd.ExecuteNonQuery();
+
+            if (affected == 0) return BadRequest();
+
+            int placeId = 0;
+            cmd = new MySqlCommand("select MAX(id) from place;", conn);
+            using (MySqlDataReader reader = cmd.ExecuteReader())
+            {
+                reader.Read();
+                placeId = reader.GetInt32(0);
+            }
+
+            cmd = new MySqlCommand("insert into address " +
+                            "(country, region, town, mail_index, street, house, apartment, place) " +
+                            $"values ('{place.Country}', '{place.Region}', '{place.Town}', '{place.MailIndex}', " +
+                            $"'{place.Street}', '{place.House}', '{place.Apartment}', {placeId});", conn);
+            affected = cmd.ExecuteNonQuery();
+            if (affected == 0) return BadRequest();
+
+            conn.Close();
+            conn.Dispose();
+            return Ok();
+        }
+
         private void PutPlace(MySqlDataReader reader, ref Place place)
         {
             place.Id = reader.GetInt32(0);
