@@ -73,8 +73,8 @@ namespace GoEatApp_backend.Controllers
                     preferences.CiusineNationality = DBUtils.SafeGetString(reader, 1);
                     preferences.Interior = DBUtils.SafeGetString(reader, 2);
                     preferences.TipsPercentage = DBUtils.SafeGetIntId(reader, 3);
-                    preferences.IsVegan = reader.GetInt32(4) == 1 ? true : false;
-                    preferences.IsRawFood = reader.GetInt32(5) == 1 ? true : false;
+                    preferences.IsVegan = DBUtils.SafeGetIntId(reader, 4) == 1 ? true : false;
+                    preferences.IsRawFood = DBUtils.SafeGetIntId(reader, 5) == 1 ? true : false;
                     bestDrinkId = DBUtils.SafeGetIntId(reader, 6);
                     bestFirstMealId = DBUtils.SafeGetIntId(reader, 7);
                     bestSecondMealId = DBUtils.SafeGetIntId(reader, 8);

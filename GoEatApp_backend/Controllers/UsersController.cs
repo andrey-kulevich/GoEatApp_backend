@@ -125,15 +125,15 @@ namespace GoEatApp_backend.Controllers
                 preferencesId = reader.GetInt32(0);
             }
 
-            cmd = new MySqlCommand("INSERT INTO user (name, age, gender, avatar, preferences, status, role, login, password)" +
-                                $"VALUES('{user.Name}', {user.Age}, {user.Gender}, '{user.Avatar}', {preferencesId}, " +
-                                $"'{user.Status}', {user.Role}, '{user.Login}', '{user.Password}');", conn);
+            cmd = new MySqlCommand("INSERT INTO user (name, age, gender, preferences, role, login, password)" +
+                                $"VALUES('{user.Name}', {user.Age}, {user.Gender}, {preferencesId}, " +
+                                $"2, '{user.Login}', '{user.Password}');", conn);
             int affected = cmd.ExecuteNonQuery();
 
             if (affected == 0) return NotFound();
             conn.Close();
             conn.Dispose();
-            return Ok();
+            return new JsonResult("Success!") { StatusCode = StatusCodes.Status201Created };
         }
 
         // Update status
