@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using GoEatapp_backend;
 using GoEatapp_backend.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
 
@@ -87,6 +88,40 @@ namespace GoEatApp_backend.Controllers
             return await Task.FromResult(new JsonResult(places));
         }
 
+        // Get count of visits
+        [HttpGet("visits/{addressId}")]
+        public async Task<ActionResult> GetVisitsCount(int addressId)
+        {
+            int count = 0;
+            conn.Open();
+            MySqlCommand cmd = new MySqlCommand($"SELECT COUNT(*) FROM invitation WHERE address = {addressId};", conn);
+            using (MySqlDataReader reader = cmd.ExecuteReader())
+            {
+                reader.Read();
+                if (reader.HasRows) count = reader.GetInt32(0);   
+            }
+            conn.Close();
+            conn.Dispose();
+            return await Task.FromResult(new JsonResult(count));
+        }
+
+        // Get rating of place by address id
+        [HttpGet("rating/{addressId}")]
+        public async Task<ActionResult> GetRatingOfPlace(int addressId)
+        {
+            float rating = 0;
+            conn.Open();
+            MySqlCommand cmd = new MySqlCommand($"call getRating({addressId});", conn);
+            using (MySqlDataReader reader = cmd.ExecuteReader())
+            {
+                reader.Read();
+                if (reader.HasRows) rating = DBUtils.SafeGetIntId(reader, 0);
+            }
+            conn.Close();
+            conn.Dispose();
+            return await Task.FromResult(new JsonResult(rating));
+        }
+
         //Create place
         [HttpPost]
         public ActionResult Post(PlaceCreate place)
@@ -118,9 +153,17 @@ namespace GoEatApp_backend.Controllers
             affected = cmd.ExecuteNonQuery();
             if (affected == 0) return BadRequest();
 
+            int addressId = 0;
+            cmd = new MySqlCommand("select MAX(id) from address;", conn);
+            using (MySqlDataReader reader = cmd.ExecuteReader())
+            {
+                reader.Read();
+                addressId = reader.GetInt32(0);
+            }
+
             conn.Close();
             conn.Dispose();
-            return Ok();
+            return new JsonResult(addressId) { StatusCode = StatusCodes.Status201Created };
         }
 
         //Create empty place
@@ -151,9 +194,17 @@ namespace GoEatApp_backend.Controllers
             affected = cmd.ExecuteNonQuery();
             if (affected == 0) return BadRequest();
 
+            int addressId = 0;
+            cmd = new MySqlCommand("select MAX(id) from address;", conn);
+            using (MySqlDataReader reader = cmd.ExecuteReader())
+            {
+                reader.Read();
+                addressId = reader.GetInt32(0);
+            }
+
             conn.Close();
             conn.Dispose();
-            return Ok();
+            return new JsonResult(addressId) { StatusCode = StatusCodes.Status201Created };
         }
 
         private void PutPlace(MySqlDataReader reader, ref Place place)

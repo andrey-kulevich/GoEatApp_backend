@@ -39,7 +39,7 @@ namespace GoEatapp_backend
             if (env.IsDevelopment()) { app.UseDeveloperExceptionPage(); }
             app.UseHttpsRedirection();
             app.UseRouting();
-            app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyHeader());
+            app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
             app.UseAuthorization();
             app.UseEndpoints( endpoints => { endpoints.MapControllers(); } );
         }

@@ -142,7 +142,7 @@ namespace GoEatApp_backend.Controllers
             cmd.ExecuteNonQuery();
             conn.Close();
             conn.Dispose();
-            return Ok();
+            return new JsonResult("Success!") { StatusCode = StatusCodes.Status201Created };
         }
 
         // Accept invitation
