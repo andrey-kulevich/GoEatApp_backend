@@ -22,7 +22,8 @@ namespace GoEatApp_backend.Controllers
         {
             Invitation invitation = new Invitation();
             conn.Open();
-            MySqlCommand cmd = new MySqlCommand($"call getInvitationById({id});", conn);
+            MySqlCommand cmd = new MySqlCommand("call getInvitationById(@id);", conn);
+            cmd.Parameters.AddWithValue("@id", id);
             using (MySqlDataReader reader = cmd.ExecuteReader())
             {
                 if (reader.HasRows)
@@ -44,7 +45,9 @@ namespace GoEatApp_backend.Controllers
         {
             List<Invitation> invitations = new List<Invitation>();
             conn.Open();
-            MySqlCommand cmd = new MySqlCommand($"call getInvitationsListByLocation('{requestArea}', '{userLocation}');", conn);
+            MySqlCommand cmd = new MySqlCommand("call getInvitationsListByLocation(@requestArea, @userLocation);", conn);
+            cmd.Parameters.AddWithValue("@requestArea", requestArea);
+            cmd.Parameters.AddWithValue("@userLocation", userLocation);
             using (MySqlDataReader reader = cmd.ExecuteReader())
             {
                 if (reader.HasRows)
@@ -70,7 +73,8 @@ namespace GoEatApp_backend.Controllers
         {
             List<Invitation> invitations = new List<Invitation>();
             conn.Open();
-            MySqlCommand cmd = new MySqlCommand($"call getInvitationsListMadeByPerson({personId});", conn);
+            MySqlCommand cmd = new MySqlCommand($"call getInvitationsListMadeByPerson(@personId);", conn);
+            cmd.Parameters.AddWithValue("@personId", personId);
             using (MySqlDataReader reader = cmd.ExecuteReader())
             {
                 if (reader.HasRows)
@@ -96,7 +100,8 @@ namespace GoEatApp_backend.Controllers
         {
             List<Invitation> invitations = new List<Invitation>();
             conn.Open();
-            MySqlCommand cmd = new MySqlCommand($"call getPersonalInvitationsList({personId});", conn);
+            MySqlCommand cmd = new MySqlCommand("call getPersonalInvitationsList(@personId);", conn);
+            cmd.Parameters.AddWithValue("@personId", personId);
             using (MySqlDataReader reader = cmd.ExecuteReader())
             {
                 if (reader.HasRows)
@@ -129,16 +134,19 @@ namespace GoEatApp_backend.Controllers
             {
                 cmd = new MySqlCommand("insert into invitation " +
                                 "(datetime, address, who_will_pay, message, inviting_person, accepted) " +
-                                $"values ('{invitation.DateTime}', {invitation.Address}, {invitation.WhoWillPay}, '{invitation.Message}', " +
-                                $"{invitation.SenderId}, 0);", conn);
+                                "values (@datetime, @address, @who_will_pay, @message, @inviting_person, 0);", conn);   
             } else
             {
                 cmd = new MySqlCommand("insert into invitation " +
                                 "(datetime, address, who_will_pay, message, inviting_person, recipient, accepted) " +
-                                $"values ('{invitation.DateTime}', {invitation.Address}, {invitation.WhoWillPay}, '{invitation.Message}', " +
-                                $"{invitation.SenderId}, {invitation.RecipientId}, 0);", conn);
+                                "values (@datetime, @address, @who_will_pay, @message, @inviting_person, @recipient, 0);", conn);
+                cmd.Parameters.AddWithValue("@recipient", invitation.RecipientId);
             }
-            
+            cmd.Parameters.AddWithValue("@datetime", invitation.DateTime);
+            cmd.Parameters.AddWithValue("@address", invitation.Address);
+            cmd.Parameters.AddWithValue("@who_will_pay", invitation.WhoWillPay);
+            cmd.Parameters.AddWithValue("@message", invitation.Message);
+            cmd.Parameters.AddWithValue("@inviting_person", invitation.SenderId);
             cmd.ExecuteNonQuery();
             conn.Close();
             conn.Dispose();
@@ -150,7 +158,8 @@ namespace GoEatApp_backend.Controllers
         public ActionResult Put([FromBody] int invitationId)
         {
             conn.Open();
-            MySqlCommand cmd = new MySqlCommand($"update invitation set accepted = 1 where id = {invitationId};", conn);
+            MySqlCommand cmd = new MySqlCommand("update invitation set accepted = 1 where id = @invitationId;", conn);
+            cmd.Parameters.AddWithValue("@invitationId", invitationId);
             int affected = cmd.ExecuteNonQuery();
             if (affected == 0) return NotFound();
             conn.Close();
@@ -163,7 +172,8 @@ namespace GoEatApp_backend.Controllers
         public ActionResult Delete(int invitationId)
         {
             conn.Open();
-            MySqlCommand cmd = new MySqlCommand($"delete from invitation where id = {invitationId};", conn);
+            MySqlCommand cmd = new MySqlCommand("delete from invitation where id = @invitationId;", conn);
+            cmd.Parameters.AddWithValue("@invitationId", invitationId);
             int affected = cmd.ExecuteNonQuery();
             if (affected == 0) return NotFound();
             conn.Close();

@@ -25,7 +25,9 @@ namespace GoEatApp_backend.Controllers
             conn.Open();
             User user = new User();
             int preferencesId = 0;
-            MySqlCommand cmd = new MySqlCommand($"call getUserByLoginAndPassword('{login}', '{password}');", conn);
+            MySqlCommand cmd = new MySqlCommand("call getUserByLoginAndPassword(@login, @password);", conn);
+            cmd.Parameters.AddWithValue("@login", login);
+            cmd.Parameters.AddWithValue("@password", password);
             using (MySqlDataReader reader = cmd.ExecuteReader())
             {
                 if (reader.HasRows)
@@ -55,7 +57,8 @@ namespace GoEatApp_backend.Controllers
             conn.Open();
             User user = new User();
             int preferencesId = 0;
-            MySqlCommand cmd = new MySqlCommand($"call getUserById({userId});", conn);
+            MySqlCommand cmd = new MySqlCommand("call getUserById(@userId);", conn);
+            cmd.Parameters.AddWithValue("@userId", userId);
             using (MySqlDataReader reader = cmd.ExecuteReader())
             {
                 if (reader.HasRows)
@@ -85,7 +88,8 @@ namespace GoEatApp_backend.Controllers
             conn.Open();
             User user = new User();
             int preferencesId = 0;
-            MySqlCommand cmd = new MySqlCommand($"call getUserByLogin('{login}');", conn);
+            MySqlCommand cmd = new MySqlCommand("call getUserByLogin(@login);", conn);
+            cmd.Parameters.AddWithValue("@login", login);
             using (MySqlDataReader reader = cmd.ExecuteReader())
             {
                 if (reader.HasRows)
@@ -126,8 +130,13 @@ namespace GoEatApp_backend.Controllers
             }
 
             cmd = new MySqlCommand("INSERT INTO user (name, age, gender, preferences, role, login, password)" +
-                                $"VALUES('{user.Name}', {user.Age}, {user.Gender}, {preferencesId}, " +
-                                $"2, '{user.Login}', '{user.Password}');", conn);
+                                "VALUES(@name, @age, @gender, @preferences, 2, @login, @password);", conn);
+            cmd.Parameters.AddWithValue("@name", user.Name);
+            cmd.Parameters.AddWithValue("@age", user.Age);
+            cmd.Parameters.AddWithValue("@gender", user.Gender);
+            cmd.Parameters.AddWithValue("@preferences", preferencesId);
+            cmd.Parameters.AddWithValue("@login", user.Login);
+            cmd.Parameters.AddWithValue("@password", user.Password);
             int affected = cmd.ExecuteNonQuery();
 
             if (affected == 0) return NotFound();
@@ -141,7 +150,9 @@ namespace GoEatApp_backend.Controllers
         public ActionResult Put(UserStatus userStatus)
         {
             conn.Open();
-            MySqlCommand cmd = new MySqlCommand($"update user set status = '{userStatus.Status}' where id = {userStatus.UserId};", conn);
+            MySqlCommand cmd = new MySqlCommand($"update user set status = @status where id = @id;", conn);
+            cmd.Parameters.AddWithValue("@status", userStatus.Status);
+            cmd.Parameters.AddWithValue("@id", userStatus.UserId);
             int affected = cmd.ExecuteNonQuery();
             if (affected == 0) return NotFound();
             conn.Close();

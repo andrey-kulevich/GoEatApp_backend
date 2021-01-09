@@ -60,7 +60,8 @@ namespace GoEatApp_backend.Controllers
         {
             List<Dish> dishes = new List<Dish>();
             conn.Open();
-            MySqlCommand cmd = new MySqlCommand($"call getDishesByPlaceId({placeId});", conn);
+            MySqlCommand cmd = new MySqlCommand("call getDishesByPlaceId(@placeId);", conn);
+            cmd.Parameters.AddWithValue("@placeId", placeId);
             using (MySqlDataReader reader = cmd.ExecuteReader())
             {
                 if (reader.HasRows)
@@ -83,7 +84,8 @@ namespace GoEatApp_backend.Controllers
         public static Dish GetDish(int dishId, MySqlConnection conn)
         {
             Dish dish = new Dish();
-            MySqlCommand cmd = new MySqlCommand($"call getDishById({dishId});", conn);
+            MySqlCommand cmd = new MySqlCommand("call getDishById(@dishId);", conn);
+            cmd.Parameters.AddWithValue("@dishId", dishId);
             using (MySqlDataReader reader = cmd.ExecuteReader())
             {
                 if (reader.HasRows)

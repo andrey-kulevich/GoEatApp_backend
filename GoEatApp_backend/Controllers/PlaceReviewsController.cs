@@ -22,7 +22,8 @@ namespace GoEatApp_backend.Controllers
         {
             List<PlaceReview> reviews = new List<PlaceReview>();
             conn.Open();
-            MySqlCommand cmd = new MySqlCommand($"call getReviewsByPlaceId({placeId});", conn);
+            MySqlCommand cmd = new MySqlCommand("call getReviewsByPlaceId(@placeId);", conn);
+            cmd.Parameters.AddWithValue("@placeId", placeId);
             using (MySqlDataReader reader = cmd.ExecuteReader())
             {
                 if (reader.HasRows)
@@ -56,7 +57,11 @@ namespace GoEatApp_backend.Controllers
 
             MySqlCommand cmd;
             cmd = new MySqlCommand("insert into place_reviews (user, place, score, review) " +
-                                    $"values ({review.UserId}, {review.PlaceId}, {review.Score}, '{review.Review}');", conn);
+                                    "values (@user, @place, @score, @review);", conn);
+            cmd.Parameters.AddWithValue("@user", review.UserId);
+            cmd.Parameters.AddWithValue("@place", review.PlaceId);
+            cmd.Parameters.AddWithValue("@score", review.Score);
+            cmd.Parameters.AddWithValue("@review", review.Review);
             int affected = cmd.ExecuteNonQuery();
             if (affected == 0) return BadRequest();
 

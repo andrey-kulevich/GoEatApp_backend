@@ -22,7 +22,8 @@ namespace GoEatApp_backend.Controllers
         {
             List<Dialog> dialogs = new List<Dialog>();
             conn.Open();
-            MySqlCommand cmd = new MySqlCommand($"call getDialogsList({userId});", conn);
+            MySqlCommand cmd = new MySqlCommand("call getDialogsList(@userId);", conn);
+            cmd.Parameters.AddWithValue("@userId", userId);
             using (MySqlDataReader reader = cmd.ExecuteReader())
             {
                 if (reader.HasRows)
@@ -50,8 +51,10 @@ namespace GoEatApp_backend.Controllers
         {
             List<Message> messages = new List<Message>();
             conn.Open();
-            MySqlCommand cmd = new MySqlCommand($"SELECT * FROM message " +
-                $"WHERE (sender = {userId} AND recipient = {recipientId}) OR (sender = {recipientId} AND recipient = {userId});", conn);
+            MySqlCommand cmd = new MySqlCommand("SELECT * FROM message " +
+                "WHERE (sender = @userId AND recipient = @recipientId) OR (sender = @recipientId AND recipient = @userId);", conn);
+            cmd.Parameters.AddWithValue("@userId", userId);
+            cmd.Parameters.AddWithValue("@recipientId", recipientId);
             using (MySqlDataReader reader = cmd.ExecuteReader())
             {
                 if (reader.HasRows)
@@ -82,7 +85,11 @@ namespace GoEatApp_backend.Controllers
             if (message == null || message.DateTime == null || message.Content == null) return BadRequest();
             conn.Open();
             MySqlCommand cmd = new MySqlCommand("INSERT INTO message (datetime, content, sender, recipient)" +
-                    $"VALUES('{message.DateTime}', '{message.Content}', {message.SenderId}, {message.RecipientId});", conn);
+                    "VALUES(@datetime, @content, @sender, @recipient);", conn);
+            cmd.Parameters.AddWithValue("@datetime", message.DateTime);
+            cmd.Parameters.AddWithValue("@content", message.Content);
+            cmd.Parameters.AddWithValue("@sender", message.SenderId);
+            cmd.Parameters.AddWithValue("@recipient", message.RecipientId);
             int affected = cmd.ExecuteNonQuery();
             if (affected == 0) return NotFound();
             cmd.ExecuteNonQuery();

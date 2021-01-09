@@ -42,7 +42,11 @@ namespace GoEatApp_backend.Controllers
             List<Place> places = new List<Place>();
             conn.Open();
             MySqlCommand cmd = new MySqlCommand(
-                $"call getPlacesListByLocationAndPreferences('{requestArea}', '{userLocation}', '{cuisine_nationality}', '{interior}');", conn);
+                "call getPlacesListByLocationAndPreferences(@requestArea, @userLocation, @cuisine_nationality, @interior);", conn);
+            cmd.Parameters.AddWithValue("@requestArea", requestArea);
+            cmd.Parameters.AddWithValue("@userLocation", userLocation);
+            cmd.Parameters.AddWithValue("@cuisine_nationality", cuisine_nationality);
+            cmd.Parameters.AddWithValue("@interior", interior);
             using (MySqlDataReader reader = cmd.ExecuteReader())
             {
                 if (reader.HasRows)
@@ -68,7 +72,8 @@ namespace GoEatApp_backend.Controllers
         {
             List<Place> places = new List<Place>();
             conn.Open();
-            MySqlCommand cmd = new MySqlCommand($"call getFavoritePlaces({userId});", conn);
+            MySqlCommand cmd = new MySqlCommand("call getFavoritePlaces(@userId);", conn);
+            cmd.Parameters.AddWithValue("@userId", userId);
             using (MySqlDataReader reader = cmd.ExecuteReader())
             {
                 if (reader.HasRows)
@@ -94,7 +99,8 @@ namespace GoEatApp_backend.Controllers
         {
             int count = 0;
             conn.Open();
-            MySqlCommand cmd = new MySqlCommand($"SELECT COUNT(*) FROM invitation WHERE address = {addressId};", conn);
+            MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM invitation WHERE address = @addressId;", conn);
+            cmd.Parameters.AddWithValue("@addressId", addressId);
             using (MySqlDataReader reader = cmd.ExecuteReader())
             {
                 reader.Read();
@@ -111,7 +117,8 @@ namespace GoEatApp_backend.Controllers
         {
             float rating = 0;
             conn.Open();
-            MySqlCommand cmd = new MySqlCommand($"call getRating({addressId});", conn);
+            MySqlCommand cmd = new MySqlCommand("call getRating(@addressId);", conn);
+            cmd.Parameters.AddWithValue("@addressId", addressId);
             using (MySqlDataReader reader = cmd.ExecuteReader())
             {
                 reader.Read();
@@ -132,8 +139,13 @@ namespace GoEatApp_backend.Controllers
             MySqlCommand cmd;
             cmd = new MySqlCommand("insert into place " +
                             "(name, photo, cuisine_nationality, interior, tagline, other) " +
-                            $"values ('{place.Name}', '{place.Photo}', {place.CuisineNationality}, {place.Interior}, " +
-                            $"'{place.Tagline}', '{place.Other}');", conn);
+                            "values (@name, @photo, @cuisine_nationality, @interior, @tagline, @other);", conn);
+            cmd.Parameters.AddWithValue("@name", place.Name);
+            cmd.Parameters.AddWithValue("@photo", place.Photo);
+            cmd.Parameters.AddWithValue("@cuisine_nationality", place.CuisineNationality);
+            cmd.Parameters.AddWithValue("@interior", place.Interior);
+            cmd.Parameters.AddWithValue("@tagline", place.Tagline);
+            cmd.Parameters.AddWithValue("@other", place.Other);
             int affected = cmd.ExecuteNonQuery();
 
             if (affected == 0) return BadRequest();
@@ -148,9 +160,17 @@ namespace GoEatApp_backend.Controllers
 
             cmd = new MySqlCommand("insert into address " +
                             "(country, region, town, mail_index, street, house, apartment, place) " +
-                            $"values ('{place.Country}', '{place.Region}', '{place.Town}', '{place.MailIndex}', " +
-                            $"'{place.Street}', '{place.House}', '{place.Apartment}', {placeId});", conn);
+                            "values (@country, @region, @town, @mail_index, @street, @house, @apartment, @place);", conn);
+            cmd.Parameters.AddWithValue("@country", place.Country);
+            cmd.Parameters.AddWithValue("@region", place.Region);
+            cmd.Parameters.AddWithValue("@town", place.Town);
+            cmd.Parameters.AddWithValue("@mail_index", place.MailIndex);
+            cmd.Parameters.AddWithValue("@street", place.Street);
+            cmd.Parameters.AddWithValue("@house", place.House);
+            cmd.Parameters.AddWithValue("@apartment", place.Apartment);
+            cmd.Parameters.AddWithValue("@place", placeId);
             affected = cmd.ExecuteNonQuery();
+
             if (affected == 0) return BadRequest();
 
             int addressId = 0;
@@ -174,7 +194,8 @@ namespace GoEatApp_backend.Controllers
             conn.Open();
 
             MySqlCommand cmd;
-            cmd = new MySqlCommand($"insert into place (name) values ('{place.Name}');", conn);
+            cmd = new MySqlCommand("insert into place (name) values (@name);", conn);
+            cmd.Parameters.AddWithValue("@name", place.Name);
             int affected = cmd.ExecuteNonQuery();
 
             if (affected == 0) return BadRequest();
@@ -189,9 +210,17 @@ namespace GoEatApp_backend.Controllers
 
             cmd = new MySqlCommand("insert into address " +
                             "(country, region, town, mail_index, street, house, apartment, place) " +
-                            $"values ('{place.Country}', '{place.Region}', '{place.Town}', '{place.MailIndex}', " +
-                            $"'{place.Street}', '{place.House}', '{place.Apartment}', {placeId});", conn);
+                            "values (@country, @region, @town, @mail_index, @street, @house, @apartment, @place);", conn);
+            cmd.Parameters.AddWithValue("@country", place.Country);
+            cmd.Parameters.AddWithValue("@region", place.Region);
+            cmd.Parameters.AddWithValue("@town", place.Town);
+            cmd.Parameters.AddWithValue("@mail_index", place.MailIndex);
+            cmd.Parameters.AddWithValue("@street", place.Street);
+            cmd.Parameters.AddWithValue("@house", place.House);
+            cmd.Parameters.AddWithValue("@apartment", place.Apartment);
+            cmd.Parameters.AddWithValue("@place", placeId);
             affected = cmd.ExecuteNonQuery();
+
             if (affected == 0) return BadRequest();
 
             int addressId = 0;

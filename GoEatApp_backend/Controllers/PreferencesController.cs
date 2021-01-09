@@ -33,8 +33,10 @@ namespace GoEatApp_backend.Controllers
         public ActionResult Put([FromBody] PreferencesIntFieldUpdate updateObj)
         {
             conn.Open();
-            MySqlCommand cmd = new MySqlCommand($"update preferences set " +
-                $"{updateObj.FieldToUpdate} = {updateObj.IntValue} where id = {updateObj.PreferencesId};", conn);
+            MySqlCommand cmd = new MySqlCommand($"update preferences set @field = @value where id = @id;", conn);
+            cmd.Parameters.AddWithValue("@field", updateObj.FieldToUpdate);
+            cmd.Parameters.AddWithValue("@value", updateObj.IntValue);
+            cmd.Parameters.AddWithValue("@id", updateObj.PreferencesId);
             int affected = cmd.ExecuteNonQuery();
             if (affected == 0) return NotFound();
             conn.Close();
@@ -47,8 +49,9 @@ namespace GoEatApp_backend.Controllers
         public ActionResult PutOther([FromBody] PreferencesOtherUpate updateObj)
         {
             conn.Open();
-            MySqlCommand cmd = new MySqlCommand($"update preferences set " +
-                $"other = '{updateObj.OtherValue}' where id = {updateObj.PreferencesId};", conn);
+            MySqlCommand cmd = new MySqlCommand($"update preferences set other = @value where id = @id;", conn);
+            cmd.Parameters.AddWithValue("@value", updateObj.OtherValue);
+            cmd.Parameters.AddWithValue("@id", updateObj.PreferencesId);
             int affected = cmd.ExecuteNonQuery();
             if (affected == 0) return NotFound();
             conn.Close();
@@ -63,7 +66,8 @@ namespace GoEatApp_backend.Controllers
             int bestFirstMealId = 0;
             int bestSecondMealId = 0;
             int bestDessertId = 0;
-            MySqlCommand cmd = new MySqlCommand($"call getPreferencesByUserId({userId});", conn);
+            MySqlCommand cmd = new MySqlCommand("call getPreferencesByUserId(@userId);", conn);
+            cmd.Parameters.AddWithValue("@userId", userId);
             using (MySqlDataReader reader = cmd.ExecuteReader())
             {
                 if (reader.HasRows)
